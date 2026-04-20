@@ -60,6 +60,10 @@ cp env.example .env
 
 打开 3 个终端窗口。
 
+端口约束说明（重要）：
+- 若测试环境限制 `8000` 以下端口不可用，请使用本文默认端口：后端 `8000`、前端 `8080`。
+- 若 `8000` 也被占用，可改后端到 `8001` 或 `18000`，同时把 `frontend/vite.config.ts` 里的代理目标从 `http://localhost:8000` 改为对应端口。
+
 ### 终端 A：启动 Redis
 
 macOS（Homebrew）：
@@ -92,16 +96,16 @@ python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
 curl http://127.0.0.1:8000/api/v1/health/
 ```
 
-### 终端 C：启动前端（端口 3000）
+### 终端 C：启动前端（端口 8080）
 
 ```bash
 cd /path/to/ac_douyin/frontend
-npm run dev -- --host 0.0.0.0 --port 3000
+npm run dev -- --host 0.0.0.0 --port 8080
 ```
 
 访问：
-- 首页：`http://127.0.0.1:3000`
-- 抖音测试页：`http://127.0.0.1:3000/douyin-test`
+- 首页：`http://127.0.0.1:8080`
+- 抖音测试页：`http://127.0.0.1:8080/douyin-test`
 
 ## 6. 是否需要先登录抖音（关键）
 
@@ -163,7 +167,7 @@ curl 'http://127.0.0.1:8000/api/v1/douyin/tasks/<task_id>'
 
 ## 8. 页面测试（/douyin-test）
 
-1. 打开 `http://127.0.0.1:3000/douyin-test`
+1. 打开 `http://127.0.0.1:8080/douyin-test`
 2. 在“抖音链接或分享文案”粘贴文本
 3. `browser` 填 `chrome`（或你登录抖音的浏览器）
 4. 点击 `1. 解析视频信息`
@@ -205,6 +209,7 @@ ls -lah data/projects/<project_id>/raw/
 4. 前端连不上后端：
 - 确认后端在 `8000` 端口。
 - 前端 Vite 代理固定到 `http://localhost:8000`。
+- 若后端不是 `8000`，同步修改 `frontend/vite.config.ts` 的代理端口。
 
 ## 11. 给 KimiCode 的最小执行清单
 
@@ -213,7 +218,7 @@ ls -lah data/projects/<project_id>/raw/
 ```text
 请按 docs/KIMICODE_DOUYIN_TEST_GUIDE.md 执行抖音下载验收。
 要求：
-1) 启动 Redis、后端(8000)、前端(3000)
+1) 启动 Redis、后端(8000)、前端(8080)
 2) 先用 API 完成 parse/download/tasks 轮询验证
 3) 再用 /douyin-test 页面复测同一链接
 4) 输出 project_id、task_id、最终状态
