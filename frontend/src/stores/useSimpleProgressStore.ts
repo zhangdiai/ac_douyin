@@ -3,6 +3,7 @@
  */
 
 import { create } from 'zustand'
+import { buildApiUrl } from '../config/network'
 
 export interface SimpleProgress {
   project_id: string
@@ -33,7 +34,7 @@ interface SimpleProgressState {
 }
 
 export const useSimpleProgressStore = create<SimpleProgressState>((set, get) => {
-  let timer: NodeJS.Timeout | null = null
+  let timer: ReturnType<typeof setInterval> | null = null
 
   return {
     // 初始状态
@@ -71,7 +72,7 @@ export const useSimpleProgressStore = create<SimpleProgressState>((set, get) => 
       const fetchSnapshots = async () => {
         try {
           const queryString = projectIds.map(id => `project_ids=${id}`).join('&')
-          const response = await fetch(`http://localhost:8000/api/v1/simple-progress/snapshot?${queryString}`)
+          const response = await fetch(buildApiUrl(`/simple-progress/snapshot?${queryString}`))
           
           if (!response.ok) {
             throw new Error(`HTTP ${response.status}: ${response.statusText}`)
