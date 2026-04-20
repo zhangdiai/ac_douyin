@@ -28,6 +28,11 @@ ICON_INFO="ℹ️"
 ICON_ROCKET="🚀"
 ICON_DOCKER="🐳"
 
+BACKEND_PORT="${BACKEND_PORT:-8000}"
+FRONTEND_PORT="${FRONTEND_PORT:-8080}"
+REDIS_PORT="${REDIS_PORT:-16379}"
+FLOWER_PORT="${FLOWER_PORT:-15555}"
+
 # =============================================================================
 # 工具函数
 # =============================================================================
@@ -105,7 +110,7 @@ check_environment() {
 check_ports() {
     log_header "检查端口占用"
     
-    local ports=(8000 3000 6379 5555)
+    local ports=("$BACKEND_PORT" "$FRONTEND_PORT" "$REDIS_PORT" "$FLOWER_PORT")
     local occupied_ports=()
     
     for port in "${ports[@]}"; do
@@ -161,10 +166,10 @@ show_status() {
     docker-compose ps
     
     echo -e "\n${CYAN}🌐 访问地址:${NC}"
-    echo -e "  前端界面: http://localhost:3000"
-    echo -e "  后端API:  http://localhost:8000"
-    echo -e "  API文档:  http://localhost:8000/docs"
-    echo -e "  Flower监控: http://localhost:5555"
+    echo -e "  前端界面: http://localhost:$FRONTEND_PORT"
+    echo -e "  后端API:  http://localhost:$BACKEND_PORT"
+    echo -e "  API文档:  http://localhost:$BACKEND_PORT/docs"
+    echo -e "  Flower监控: http://localhost:$FLOWER_PORT"
     
     echo -e "\n${CYAN}📝 常用命令:${NC}"
     echo -e "  查看日志: docker-compose logs -f"

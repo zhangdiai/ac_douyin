@@ -11,9 +11,10 @@ set -euo pipefail
 # =============================================================================
 
 # 服务端口配置
-BACKEND_PORT=8000
-FRONTEND_PORT=3000
-REDIS_PORT=6379
+BACKEND_PORT="${BACKEND_PORT:-8000}"
+FRONTEND_PORT="${FRONTEND_PORT:-8080}"
+REDIS_PORT="${REDIS_PORT:-16379}"
+REDIS_URL="${REDIS_URL:-redis://localhost:${REDIS_PORT}/0}"
 
 # 服务超时配置
 BACKEND_STARTUP_TIMEOUT=60
@@ -210,7 +211,7 @@ check_environment() {
 start_redis() {
     log_step "启动 Redis 服务"
     
-    if redis-cli ping >/dev/null 2>&1; then
+    if redis-cli -u "$REDIS_URL" ping >/dev/null 2>&1; then
         log_success "Redis 服务已运行"
         return 0
     fi
@@ -218,21 +219,32 @@ start_redis() {
     log_info "启动 Redis 服务..."
     
     if [[ "$OSTYPE" == "darwin"* ]]; then
-        if command_exists brew; then
+        if [[ "$REDIS_PORT" == "6379" ]] && command_exists brew; then
             brew services start redis
             sleep 3
+        elif command_exists redis-server; then
+            redis-server --port "$REDIS_PORT" --daemonize yes
+            sleep 2
         else
             log_error "请手动启动 Redis 服务"
             exit 1
         fi
     else
-        systemctl start redis-server 2>/dev/null || service redis-server start 2>/dev/null || {
+        if [[ "$REDIS_PORT" == "6379" ]]; then
+            systemctl start redis-server 2>/dev/null || service redis-server start 2>/dev/null || {
+                log_error "无法启动 Redis 服务，请手动启动"
+                exit 1
+            }
+        elif command_exists redis-server; then
+            redis-server --port "$REDIS_PORT" --daemonize yes
+            sleep 2
+        else
             log_error "无法启动 Redis 服务，请手动启动"
             exit 1
-        }
+        fi
     fi
     
-    if redis-cli ping >/dev/null 2>&1; then
+    if redis-cli -u "$REDIS_URL" ping >/dev/null 2>&1; then
         log_success "Redis 服务启动成功"
     else
         log_error "Redis 服务启动失败"
@@ -271,7 +283,7 @@ setup_environment() {
                 cat > .env << EOF
 # AutoClip 环境配置
 DATABASE_URL=sqlite:///./data/autoclip.db
-REDIS_URL=redis://localhost:6379/0
+REDIS_URL=${REDIS_URL:-redis://localhost:${REDIS_PORT}/0}
 API_DASHSCOPE_API_KEY=
 API_MODEL_NAME=qwen-plus
 LOG_LEVEL=INFO
@@ -454,7 +466,7 @@ health_check() {
     
     # 检查Redis
     log_info "检查 Redis 服务..."
-    if redis-cli ping >/dev/null 2>&1; then
+    if redis-cli -u "$REDIS_URL" ping >/dev/null 2>&1; then
         log_success "Redis 服务健康"
     else
         log_error "Redis 服务不健康"

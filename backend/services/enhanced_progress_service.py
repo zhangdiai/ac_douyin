@@ -15,6 +15,7 @@ import redis
 from sqlalchemy.orm import Session
 
 from ..core.database import SessionLocal
+from ..core.config import get_redis_url
 from ..models.project import Project, ProjectStatus
 from ..models.task import Task, TaskStatus
 from ..utils.error_handler import AutoClipsException, ErrorCategory
@@ -119,7 +120,7 @@ class EnhancedProgressService:
         """初始化Redis连接"""
         try:
             self.redis_client = redis.Redis.from_url(
-                "redis://127.0.0.1:6379/0", 
+                get_redis_url(),
                 decode_responses=True,
                 socket_timeout=5,
                 socket_connect_timeout=5

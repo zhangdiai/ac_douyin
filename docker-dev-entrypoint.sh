@@ -10,6 +10,8 @@ echo "🚀 启动AutoClip开发环境..."
 # 设置环境变量
 export PYTHONPATH=/app
 export PYTHONUNBUFFERED=1
+BACKEND_PORT="${BACKEND_PORT:-8000}"
+FRONTEND_PORT="${FRONTEND_PORT:-8080}"
 
 # 确保数据目录存在
 mkdir -p /app/data/projects /app/data/uploads /app/data/temp /app/data/output /app/logs
@@ -36,7 +38,7 @@ cd /app
 
 # 启动后端服务
 echo "🔧 启动后端服务..."
-python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload &
+python -m uvicorn backend.main:app --host 0.0.0.0 --port "$BACKEND_PORT" --reload &
 BACKEND_PID=$!
 
 # 等待后端启动
@@ -45,15 +47,15 @@ sleep 3
 # 启动前端服务
 echo "🌐 启动前端服务..."
 cd /app/frontend
-npx vite --host 0.0.0.0 --port 3000 &
+npx vite --host 0.0.0.0 --port "$FRONTEND_PORT" &
 FRONTEND_PID=$!
 
 # 返回根目录
 cd /app
 
 echo "✅ 服务启动完成"
-echo "  后端API: http://localhost:8000"
-echo "  前端界面: http://localhost:3000"
+echo "  后端API: http://localhost:$BACKEND_PORT"
+echo "  前端界面: http://localhost:$FRONTEND_PORT"
 
 # 等待所有进程
 wait

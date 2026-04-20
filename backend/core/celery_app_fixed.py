@@ -17,8 +17,8 @@ celery_app.conf.update(
     result_serializer='json',
     
     # Redis配置
-    broker_url='redis://localhost:6379/0',
-    result_backend='redis://localhost:6379/0',
+    broker_url=os.getenv('REDIS_URL', 'redis://localhost:16379/0'),
+    result_backend=os.getenv('REDIS_URL', 'redis://localhost:16379/0'),
     
     # 时区
     timezone='Asia/Shanghai',
@@ -119,4 +119,3 @@ def upload_to_bilibili(self, project_id: str, video_path: str, title: str, descr
 
 if __name__ == '__main__':
     celery_app.start()
-

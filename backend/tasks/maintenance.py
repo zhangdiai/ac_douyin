@@ -113,7 +113,8 @@ def health_check(self) -> Dict[str, Any]:
         # 检查Redis连接
         try:
             import redis
-            r = redis.Redis.from_url('redis://localhost:6379/0')
+            redis_url = os.getenv('REDIS_URL', f"redis://localhost:{os.getenv('REDIS_PORT', '16379')}/0")
+            r = redis.Redis.from_url(redis_url)
             r.ping()
             health_status['checks']['redis'] = {'status': 'healthy', 'message': 'Redis连接正常'}
         except Exception as e:

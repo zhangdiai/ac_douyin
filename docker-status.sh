@@ -30,6 +30,10 @@ ICON_SICK="🤒"
 ICON_ROCKET="🚀"
 ICON_DOCKER="🐳"
 
+BACKEND_PORT="${BACKEND_PORT:-8000}"
+FRONTEND_PORT="${FRONTEND_PORT:-8080}"
+FLOWER_PORT="${FLOWER_PORT:-15555}"
+
 # =============================================================================
 # 工具函数
 # =============================================================================
@@ -109,14 +113,14 @@ check_services() {
     log_header "服务健康检查"
     
     # 检查后端API
-    if curl -fsS "http://localhost:8000/api/v1/health/" >/dev/null 2>&1; then
+    if curl -fsS "http://localhost:$BACKEND_PORT/api/v1/health/" >/dev/null 2>&1; then
         log_success "后端API服务健康"
     else
         log_error "后端API服务不健康"
     fi
     
     # 检查前端服务
-    if curl -fsS "http://localhost:3000/" >/dev/null 2>&1; then
+    if curl -fsS "http://localhost:$FRONTEND_PORT/" >/dev/null 2>&1; then
         log_success "前端服务健康"
     else
         log_error "前端服务不健康"
@@ -177,10 +181,10 @@ show_access_info() {
     log_header "访问信息"
     
     echo -e "${CYAN}🌐 服务访问地址:${NC}"
-    echo -e "  前端界面: http://localhost:3000"
-    echo -e "  后端API:  http://localhost:8000"
-    echo -e "  API文档:  http://localhost:8000/docs"
-    echo -e "  Flower监控: http://localhost:5555"
+    echo -e "  前端界面: http://localhost:$FRONTEND_PORT"
+    echo -e "  后端API:  http://localhost:$BACKEND_PORT"
+    echo -e "  API文档:  http://localhost:$BACKEND_PORT/docs"
+    echo -e "  Flower监控: http://localhost:$FLOWER_PORT"
     
     echo -e "\n${CYAN}📝 常用命令:${NC}"
     echo -e "  查看日志: docker-compose logs -f"

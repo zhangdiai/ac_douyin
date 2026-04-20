@@ -29,7 +29,7 @@ ORDER = [name for name, _ in STAGES]
 # Redis连接 - 使用项目现有的Redis配置
 try:
     # 从环境变量获取Redis URL，默认为本地地址
-    redis_url = os.getenv("REDIS_URL", "redis://127.0.0.1:6379/0")
+    redis_url = os.getenv("REDIS_URL", f"redis://127.0.0.1:{os.getenv('REDIS_PORT', '16379')}/0")
     r = redis.Redis.from_url(redis_url, decode_responses=True)
     # 测试连接
     r.ping()

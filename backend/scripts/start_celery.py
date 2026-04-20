@@ -57,17 +57,18 @@ def start_celery_beat():
 def start_flower():
     """启动Flower监控界面"""
     print("🌸 启动Flower监控界面...")
+    flower_port = os.getenv("FLOWER_PORT", "15555")
     
     cmd = [
         "celery", "-A", "backend.core.celery_app", "flower",
-        "--port=5555",
+        f"--port={flower_port}",
         "--loglevel=info"
     ]
     
     try:
         process = subprocess.Popen(cmd, cwd=str(project_root))
         print(f"✅ Flower已启动 (PID: {process.pid})")
-        print("🌐 Flower监控界面: http://localhost:5555")
+        print(f"🌐 Flower监控界面: http://localhost:{flower_port}")
         return process
     except Exception as e:
         print(f"❌ 启动Flower失败: {e}")
@@ -90,7 +91,8 @@ def main():
     # 检查Redis连接
     try:
         import redis
-        r = redis.Redis.from_url('redis://localhost:6379/0')
+        redis_url = os.getenv('REDIS_URL', f"redis://localhost:{os.getenv('REDIS_PORT', '16379')}/0")
+        r = redis.Redis.from_url(redis_url)
         r.ping()
         print("✅ Redis连接正常")
     except Exception as e:
@@ -124,7 +126,7 @@ def main():
     print("📊 服务状态:")
     print("   - Celery Worker: 处理任务")
     print("   - Celery Beat: 定时任务调度")
-    print("   - Flower: 任务监控界面 (http://localhost:5555)")
+    print(f"   - Flower: 任务监控界面 (http://localhost:{os.getenv('FLOWER_PORT', '15555')})")
     print("\n按 Ctrl+C 停止所有服务")
     
     try:

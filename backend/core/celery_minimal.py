@@ -19,8 +19,8 @@ celery_app.conf.update(
     result_serializer='json',
     
     # Redis配置
-    broker_url='redis://localhost:6379/0',
-    result_backend='redis://localhost:6379/0',
+    broker_url=os.getenv('REDIS_URL', 'redis://localhost:16379/0'),
+    result_backend=os.getenv('REDIS_URL', 'redis://localhost:16379/0'),
     
     # 时区
     timezone='Asia/Shanghai',
@@ -117,4 +117,3 @@ def backend_process_single_step(self, project_id: str, step: str, config: dict):
 
 if __name__ == '__main__':
     celery_app.start()
-

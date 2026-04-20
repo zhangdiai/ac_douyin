@@ -11,9 +11,10 @@ set -euo pipefail
 # =============================================================================
 
 # 服务端口配置
-BACKEND_PORT=8000
-FRONTEND_PORT=3000
-REDIS_PORT=6379
+BACKEND_PORT="${BACKEND_PORT:-8000}"
+FRONTEND_PORT="${FRONTEND_PORT:-8080}"
+REDIS_PORT="${REDIS_PORT:-16379}"
+REDIS_URL="${REDIS_URL:-redis://localhost:${REDIS_PORT}/0}"
 
 # PID文件
 BACKEND_PID_FILE="backend.pid"
@@ -154,12 +155,12 @@ get_service_info() {
 check_redis() {
     log_header "Redis 服务状态"
     
-    if redis-cli ping >/dev/null 2>&1; then
+    if redis-cli -u "$REDIS_URL" ping >/dev/null 2>&1; then
         log_success "Redis 服务运行正常"
         
         # 获取Redis信息
         echo -e "\n${CYAN}📊 Redis 详细信息:${NC}"
-        redis-cli info server | grep -E "(redis_version|uptime_in_seconds|connected_clients)" | while read line; do
+        redis-cli -u "$REDIS_URL" info server | grep -E "(redis_version|uptime_in_seconds|connected_clients)" | while read line; do
             echo "  $line"
         done
         return 0

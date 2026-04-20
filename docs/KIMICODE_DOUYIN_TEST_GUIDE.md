@@ -62,7 +62,7 @@ cp env.example .env
 
 端口约束说明（重要）：
 - 若测试环境限制 `8000` 以下端口不可用，请使用本文默认端口：后端 `8000`、前端 `8080`。
-- 若 `8000` 也被占用，可改后端到 `8001` 或 `18000`，同时把 `frontend/vite.config.ts` 里的代理目标从 `http://localhost:8000` 改为对应端口。
+- 若 `8000` 也被占用，可改后端到 `8001` 或 `18000`。当前前端代理已支持从环境变量读取后端端口（`BACKEND_PORT` / `VITE_API_TARGET`）。
 
 ### 终端 A：启动 Redis
 
@@ -70,17 +70,30 @@ macOS（Homebrew）：
 
 ```bash
 brew services start redis
-redis-cli ping
+redis-cli -p 6379 ping
 ```
 
 Linux（systemd）：
 
 ```bash
 sudo systemctl start redis
-redis-cli ping
+redis-cli -p 6379 ping
 ```
 
 返回 `PONG` 即正常。
+
+如果环境限制 `<8000` 端口不可用，建议直接以高端口启动 Redis（如 `16379`）：
+
+```bash
+redis-server --port 16379 --daemonize yes
+redis-cli -p 16379 ping
+```
+
+并在启动后端前设置：
+
+```bash
+export REDIS_URL=redis://localhost:16379/0
+```
 
 ### 终端 B：启动后端 API（端口 8000）
 
@@ -208,8 +221,7 @@ ls -lah data/projects/<project_id>/raw/
 
 4. 前端连不上后端：
 - 确认后端在 `8000` 端口。
-- 前端 Vite 代理固定到 `http://localhost:8000`。
-- 若后端不是 `8000`，同步修改 `frontend/vite.config.ts` 的代理端口。
+- 若后端不是 `8000`，启动前端前设置 `BACKEND_PORT` 或 `VITE_API_TARGET`。
 
 ## 11. 给 KimiCode 的最小执行清单
 

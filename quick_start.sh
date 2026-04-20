@@ -10,8 +10,10 @@ set -euo pipefail
 # 配置区域
 # =============================================================================
 
-BACKEND_PORT=8000
-FRONTEND_PORT=3000
+BACKEND_PORT="${BACKEND_PORT:-8000}"
+FRONTEND_PORT="${FRONTEND_PORT:-8080}"
+REDIS_PORT="${REDIS_PORT:-16379}"
+REDIS_URL="${REDIS_URL:-redis://localhost:${REDIS_PORT}/0}"
 
 # =============================================================================
 # 颜色定义
@@ -68,10 +70,13 @@ main() {
     fi
     
     # 启动Redis（如果需要）
-    if ! redis-cli ping >/dev/null 2>&1; then
+    if ! redis-cli -u "$REDIS_URL" ping >/dev/null 2>&1; then
         log_info "启动Redis..."
-        if command -v brew >/dev/null; then
+        if [[ "$REDIS_PORT" == "6379" ]] && command -v brew >/dev/null; then
             brew services start redis
+            sleep 2
+        elif command -v redis-server >/dev/null; then
+            redis-server --port "$REDIS_PORT" --daemonize yes
             sleep 2
         fi
     fi
