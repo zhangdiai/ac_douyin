@@ -69,6 +69,11 @@ export REDIS_PORT=16379
 export REDIS_URL=redis://localhost:${REDIS_PORT}/0
 ```
 
+前端网络配置说明（与当前代码一致）：
+- 前端 `src` 内接口已去掉固定 `localhost:8000` 写死地址。
+- 可通过 `VITE_API_TARGET` 显式指定后端地址（例如 `http://127.0.0.1:8001`）。
+- 若不设置 `VITE_API_TARGET`，前端会按 `BACKEND_PORT` 组装 API 地址。
+
 端口约束说明（重要）：
 - 若测试环境限制 `8000` 以下端口不可用，请使用本文默认端口：后端 `8000`、前端 `8080`。
 - 若 `8000` 也被占用，可改后端到 `8001` 或 `18000`。当前前端代理已支持从环境变量读取后端端口（`BACKEND_PORT` / `VITE_API_TARGET`）。
